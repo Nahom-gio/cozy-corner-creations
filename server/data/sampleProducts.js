@@ -5,6 +5,7 @@ export const sampleProducts = [
     price: 1290,
     category: "Seating",
     room: "Living",
+    image: "/products/armchair-olive.jpg",
     description: "Mid-century velvet armchair in olive green with walnut legs.",
   },
   {
@@ -13,6 +14,7 @@ export const sampleProducts = [
     price: 2450,
     category: "Tables",
     room: "Dining",
+    image: "/products/dining-table.jpg",
     description: "Solid oak dining table with Scandinavian-inspired splayed legs.",
   },
   {
@@ -21,6 +23,7 @@ export const sampleProducts = [
     price: 3200,
     category: "Seating",
     room: "Living",
+    image: "/products/sofa-terracotta.jpg",
     description: "Three-seater sofa in warm terracotta linen with metal legs.",
   },
   {
@@ -29,6 +32,7 @@ export const sampleProducts = [
     price: 680,
     category: "Storage",
     room: "Bedroom",
+    image: "/products/nightstand.jpg",
     description: "Walnut bedside table with brass handle and tapered legs.",
   },
   {
@@ -37,6 +41,7 @@ export const sampleProducts = [
     price: 420,
     category: "Lighting",
     room: "Lighting",
+    image: "/products/pendant-lamp.jpg",
     description: "Brushed brass pendant with a natural linen drum shade.",
   },
   {
@@ -45,6 +50,7 @@ export const sampleProducts = [
     price: 1850,
     category: "Tables",
     room: "Living",
+    image: "/products/coffee-table.jpg",
     description: "Round Carrara marble top with gold-finished cross base.",
   },
   {
@@ -53,6 +59,7 @@ export const sampleProducts = [
     price: 1450,
     category: "Storage",
     room: "Living",
+    image: "/products/bookshelf.jpg",
     description: "Mid-century oak bookshelf with drawers and open compartments.",
   },
   {
@@ -61,6 +68,7 @@ export const sampleProducts = [
     price: 2800,
     category: "Seating",
     room: "Bedroom",
+    image: "/products/bed-linen.jpg",
     description: "King-size bed with tufted linen headboard and walnut legs.",
   },
   {
@@ -69,6 +77,7 @@ export const sampleProducts = [
     price: 1950,
     category: "Storage",
     room: "Bedroom",
+    image: "/products/dresser.jpg",
     description: "Six-drawer walnut dresser with brass pulls and splayed legs.",
   },
   {
@@ -77,6 +86,7 @@ export const sampleProducts = [
     price: 560,
     category: "Lighting",
     room: "Lighting",
+    image: "/products/floor-lamp.jpg",
     description: "Elegant brass floor lamp with white linen tapered shade.",
   },
   {
@@ -85,6 +95,7 @@ export const sampleProducts = [
     price: 480,
     category: "Seating",
     room: "Dining",
+    image: "/products/dining-chair.jpg",
     description: "Cream boucle dining chair with solid oak splayed legs.",
   },
   {
@@ -93,6 +104,7 @@ export const sampleProducts = [
     price: 1680,
     category: "Storage",
     room: "Living",
+    image: "/products/tv-console.jpg",
     description: "Natural oak media console with sliding doors and open shelf.",
   },
   {
@@ -101,6 +113,7 @@ export const sampleProducts = [
     price: 320,
     category: "Lighting",
     room: "Lighting",
+    image: "/products/table-lamp.jpg",
     description: "Sage green ceramic table lamp with natural linen shade.",
   },
 ];

@@ -1,17 +1,3 @@
-import armchairOlive from "@/assets/products/armchair-olive.jpg";
-import diningTable from "@/assets/products/dining-table.jpg";
-import sofaTerracotta from "@/assets/products/sofa-terracotta.jpg";
-import nightstand from "@/assets/products/nightstand.jpg";
-import pendantLamp from "@/assets/products/pendant-lamp.jpg";
-import coffeeTable from "@/assets/products/coffee-table.jpg";
-import bookshelf from "@/assets/products/bookshelf.jpg";
-import bedLinen from "@/assets/products/bed-linen.jpg";
-import dresser from "@/assets/products/dresser.jpg";
-import floorLamp from "@/assets/products/floor-lamp.jpg";
-import diningChair from "@/assets/products/dining-chair.jpg";
-import tvConsole from "@/assets/products/tv-console.jpg";
-import tableLamp from "@/assets/products/table-lamp.jpg";
-
 export type Product = {
   id: string;
   name: string;
@@ -53,7 +39,7 @@ export const products: Product[] = [
     price: 1290,
     category: "Seating",
     room: "Living",
-    image: armchairOlive,
+    image: "/products/armchair-olive.jpg",
     description: "Mid-century velvet armchair in olive green with walnut legs.",
   },
   {
@@ -62,7 +48,7 @@ export const products: Product[] = [
     price: 2450,
     category: "Tables",
     room: "Dining",
-    image: diningTable,
+    image: "/products/dining-table.jpg",
     description: "Solid oak dining table with Scandinavian-inspired splayed legs.",
   },
   {
@@ -71,7 +57,7 @@ export const products: Product[] = [
     price: 3200,
     category: "Seating",
     room: "Living",
-    image: sofaTerracotta,
+    image: "/products/sofa-terracotta.jpg",
     description: "Three-seater sofa in warm terracotta linen with metal legs.",
   },
   {
@@ -80,7 +66,7 @@ export const products: Product[] = [
     price: 680,
     category: "Storage",
     room: "Bedroom",
-    image: nightstand,
+    image: "/products/nightstand.jpg",
     description: "Walnut bedside table with brass handle and tapered legs.",
   },
   {
@@ -89,7 +75,7 @@ export const products: Product[] = [
     price: 420,
     category: "Lighting",
     room: "Lighting",
-    image: pendantLamp,
+    image: "/products/pendant-lamp.jpg",
     description: "Brushed brass pendant with a natural linen drum shade.",
   },
   {
@@ -98,7 +84,7 @@ export const products: Product[] = [
     price: 1850,
     category: "Tables",
     room: "Living",
-    image: coffeeTable,
+    image: "/products/coffee-table.jpg",
     description: "Round Carrara marble top with gold-finished cross base.",
   },
   {
@@ -107,7 +93,7 @@ export const products: Product[] = [
     price: 1450,
     category: "Storage",
     room: "Living",
-    image: bookshelf,
+    image: "/products/bookshelf.jpg",
     description: "Mid-century oak bookshelf with drawers and open compartments.",
   },
   {
@@ -116,7 +102,7 @@ export const products: Product[] = [
     price: 2800,
     category: "Seating",
     room: "Bedroom",
-    image: bedLinen,
+    image: "/products/bed-linen.jpg",
     description: "King-size bed with tufted linen headboard and walnut legs.",
   },
   {
@@ -125,7 +111,7 @@ export const products: Product[] = [
     price: 1950,
     category: "Storage",
     room: "Bedroom",
-    image: dresser,
+    image: "/products/dresser.jpg",
     description: "Six-drawer walnut dresser with brass pulls and splayed legs.",
   },
   {
@@ -134,7 +120,7 @@ export const products: Product[] = [
     price: 560,
     category: "Lighting",
     room: "Lighting",
-    image: floorLamp,
+    image: "/products/floor-lamp.jpg",
     description: "Elegant brass floor lamp with white linen tapered shade.",
   },
   {
@@ -143,7 +129,7 @@ export const products: Product[] = [
     price: 480,
     category: "Seating",
     room: "Dining",
-    image: diningChair,
+    image: "/products/dining-chair.jpg",
     description: "Cream boucle dining chair with solid oak splayed legs.",
   },
   {
@@ -152,7 +138,7 @@ export const products: Product[] = [
     price: 1680,
     category: "Storage",
     room: "Living",
-    image: tvConsole,
+    image: "/products/tv-console.jpg",
     description: "Natural oak media console with sliding doors and open shelf.",
   },
   {
@@ -161,7 +147,7 @@ export const products: Product[] = [
     price: 320,
     category: "Lighting",
     room: "Lighting",
-    image: tableLamp,
+    image: "/products/table-lamp.jpg",
     description: "Sage green ceramic table lamp with natural linen shade.",
   },
 ];

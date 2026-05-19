@@ -1,21 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { products as localProducts, type Product } from "@/data/products";
 
-type ProductResponse = Omit<Product, "image"> & {
-  _id?: string;
-  image?: string;
-};
-
-const imageById = new Map(localProducts.map((product) => [product.id, product.image]));
-
-const normalizeProduct = (product: ProductResponse): Product => ({
+const normalizeProduct = (product: Product): Product => ({
   id: product.id,
   name: product.name,
   price: product.price,
   category: product.category,
   room: product.room,
   description: product.description,
-  image: imageById.get(product.id) ?? product.image ?? "",
+  image: product.image,
 });
 
 export function useProducts() {
@@ -29,7 +22,7 @@ export function useProducts() {
       try {
         const response = await fetch("/api/products");
         if (!response.ok) throw new Error("Could not load products");
-        const data = (await response.json()) as ProductResponse[];
+        const data = (await response.json()) as Product[];
         if (active) setProducts(data.map(normalizeProduct));
       } catch {
         if (active) setProducts(localProducts);
