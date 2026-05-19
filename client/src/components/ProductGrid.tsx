@@ -1,9 +1,11 @@
 import { useState } from "react";
-import { products, categories } from "@/data/products";
+import { categories } from "@/data/products";
+import { useProducts } from "@/hooks/useProducts";
 import ProductCard from "./ProductCard";
 
 const ProductGrid = () => {
   const [active, setActive] = useState("All");
+  const { products, loading } = useProducts();
 
   const filtered = active === "All" ? products : products.filter((p) => p.category === active);
 
@@ -30,6 +32,7 @@ const ProductGrid = () => {
           ))}
         </div>
       </div>
+      {loading && <p className="font-body text-sm text-muted-foreground mb-6">Loading products...</p>}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
         {filtered.map((p) => (
           <ProductCard key={p.id} product={p} />

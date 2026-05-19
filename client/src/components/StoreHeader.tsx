@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ShoppingBag, Menu, X, Search } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { Link, useNavigate } from "react-router-dom";
-import { products } from "@/data/products";
+import { useProducts } from "@/hooks/useProducts";
 
 const navLinks = [
   { to: "/category/Living", label: "Living" },
@@ -17,6 +17,7 @@ const StoreHeader = () => {
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
+  const { products } = useProducts();
 
   const results = query.trim()
     ? products
@@ -87,7 +88,7 @@ const StoreHeader = () => {
             className="absolute inset-0 bg-foreground/30 animate-fade-in"
             onClick={() => setMobileOpen(false)}
           />
-          <div className="absolute top-0 left-0 bottom-0 w-72 bg-background shadow-xl animate-slide-in-right p-6 flex flex-col" style={{ animation: "slide-in-right 0.3s ease-out reverse" }}>
+          <div className="absolute top-0 left-0 bottom-0 w-72 bg-background shadow-xl p-6 flex flex-col">
             <div className="flex items-center justify-between mb-8">
               <span className="font-display text-2xl font-semibold">Maison</span>
               <button onClick={() => setMobileOpen(false)} className="p-2 hover:bg-secondary rounded-full" aria-label="Close menu">
@@ -137,7 +138,7 @@ const StoreHeader = () => {
                 autoFocus
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search furniture, lighting, rooms…"
+                placeholder="Search furniture, lighting, rooms..."
                 className="flex-1 bg-transparent outline-none font-body text-lg placeholder:text-muted-foreground"
               />
               <button onClick={closeSearch} className="p-2 hover:bg-secondary rounded-full" aria-label="Close search">
@@ -162,7 +163,7 @@ const StoreHeader = () => {
                           <img src={p.image} alt={p.name} className="w-14 h-14 object-cover rounded-sm bg-card" />
                           <div className="flex-1 min-w-0">
                             <p className="font-display text-base text-foreground truncate">{p.name}</p>
-                            <p className="font-body text-xs text-muted-foreground uppercase tracking-wide">{p.category} · {p.room}</p>
+                            <p className="font-body text-xs text-muted-foreground uppercase tracking-wide">{p.category} - {p.room}</p>
                           </div>
                           <span className="font-body text-sm text-foreground">${p.price.toLocaleString()}</span>
                         </button>

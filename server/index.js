@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import express from "express";
 import mongoose from "mongoose";
 import { connectDB } from "./config/db.js";
+import productRoutes from "./routes/productRoutes.js";
 
 dotenv.config();
 
@@ -19,6 +20,8 @@ app.get("/api/health", (_req, res) => {
     database: mongoose.connection.readyState === 1 ? "connected" : "not connected",
   });
 });
+
+app.use("/api/products", productRoutes);
 
 app.use((_req, res) => {
   res.status(404).json({ message: "Route not found" });

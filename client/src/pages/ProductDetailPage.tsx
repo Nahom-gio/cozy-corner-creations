@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { Link, useParams, Navigate } from "react-router-dom";
 import { Minus, Plus, ShoppingBag, ChevronLeft } from "lucide-react";
 import { motion } from "framer-motion";
@@ -6,15 +6,28 @@ import StoreHeader from "@/components/StoreHeader";
 import StoreFooter from "@/components/StoreFooter";
 import CartDrawer from "@/components/CartDrawer";
 import ProductCard from "@/components/ProductCard";
-import { products } from "@/data/products";
 import { useCart } from "@/context/CartContext";
+import { useProduct } from "@/hooks/useProducts";
 
 const ProductDetailPage = () => {
   const { id } = useParams();
-  const product = useMemo(() => products.find((p) => p.id === id), [id]);
+  const { product, products, loading } = useProduct(id);
   const { addItem, setIsOpen } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <StoreHeader />
+        <main className="flex-1 container py-24">
+          <p className="font-body text-muted-foreground">Loading product...</p>
+        </main>
+        <CartDrawer />
+        <StoreFooter />
+      </div>
+    );
+  }
 
   if (!product) return <Navigate to="/404" replace />;
 
@@ -81,7 +94,7 @@ const ProductDetailPage = () => {
             className="flex flex-col"
           >
             <p className="font-body text-xs tracking-wider uppercase text-muted-foreground">
-              {product.category} · {product.room}
+              {product.category} - {product.room}
             </p>
             <h1 className="font-display text-4xl md:text-5xl font-semibold text-foreground mt-2">
               {product.name}
@@ -101,7 +114,7 @@ const ProductDetailPage = () => {
             <ul className="mt-6 grid grid-cols-2 gap-y-2 gap-x-6 font-body text-sm">
               <li className="text-muted-foreground">Material<span className="block text-foreground">Natural fibers & wood</span></li>
               <li className="text-muted-foreground">Origin<span className="block text-foreground">Handcrafted in Europe</span></li>
-              <li className="text-muted-foreground">Ships in<span className="block text-foreground">2–3 weeks</span></li>
+              <li className="text-muted-foreground">Ships in<span className="block text-foreground">2-3 weeks</span></li>
               <li className="text-muted-foreground">Warranty<span className="block text-foreground">10 years</span></li>
             </ul>
 
@@ -131,7 +144,7 @@ const ProductDetailPage = () => {
                 className="w-full py-4 bg-primary text-primary-foreground font-body text-sm font-medium tracking-wider uppercase rounded-sm hover:opacity-90 transition-opacity inline-flex items-center justify-center gap-2"
               >
                 <ShoppingBag className="w-4 h-4" />
-                Add to cart · ${(product.price * quantity).toLocaleString()}
+                Add to cart - ${(product.price * quantity).toLocaleString()}
               </button>
             </div>
           </motion.div>
