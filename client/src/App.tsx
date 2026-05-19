@@ -7,6 +7,7 @@ import { CartProvider } from "@/context/CartContext";
 import Index from "./pages/Index.tsx";
 import CategoryPage from "./pages/CategoryPage.tsx";
 import InfoPage from "./pages/InfoPage.tsx";
+import ProductDetailPage from "./pages/ProductDetailPage.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -20,6 +21,7 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/product/:id" element={<ProductDetailPage />} />
             <Route path="/category/:room" element={<CategoryPage />} />
             <Route path="/about" element={<InfoPage />} />
             <Route path="/shipping" element={<InfoPage />} />
