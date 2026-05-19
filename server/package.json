@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "start": "node index.js",
-    "dev": "nodemon index.js"
+    "dev": "nodemon index.js",
+    "seed:products": "node scripts/seedProducts.js"
   },
   "dependencies": {
     "cors": "^2.8.6",
