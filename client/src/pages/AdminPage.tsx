@@ -23,6 +23,7 @@ const emptyProduct: ProductInput = {
   origin: "",
   shipping: "",
   warranty: "",
+  variants: [],
 };
 
 const AdminPage = () => {
@@ -34,9 +35,14 @@ const AdminPage = () => {
     queryFn: () => api.getOrders(token),
     enabled: user?.role === "admin",
   });
+  const users = useQuery({
+    queryKey: ["admin-users"],
+    queryFn: () => api.getUsers(token),
+    enabled: user?.role === "admin",
+  });
   const [form, setForm] = useState<ProductInput>(emptyProduct);
   const [editingId, setEditingId] = useState<string | null>(null);
-  const [section, setSection] = useState<"catalog" | "orders">("catalog");
+  const [section, setSection] = useState<"catalog" | "orders" | "users">("catalog");
   const [uploading, setUploading] = useState(false);
 
   const refreshCatalog = () => queryClient.invalidateQueries({ queryKey: ["products"] });
@@ -67,6 +73,15 @@ const AdminPage = () => {
     onSuccess: () => {
       toast.success("Order status updated");
       queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
+    },
+    onError: (requestError) => toast.error(requestError.message),
+  });
+  const userMutation = useMutation({
+    mutationFn: ({ id, active, role }: { id: string; active?: boolean; role?: "customer" | "admin" }) =>
+      api.updateUser(id, { active, role }, token),
+    onSuccess: () => {
+      toast.success("User updated");
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
     },
     onError: (requestError) => toast.error(requestError.message),
   });
@@ -113,8 +128,8 @@ const AdminPage = () => {
   const metrics = [
     { label: "Products", value: products.length.toLocaleString() },
     { label: "Orders", value: orderList.length.toLocaleString() },
+    { label: "Users", value: (users.data?.length ?? 0).toLocaleString() },
     { label: "Revenue", value: `$${orderList.reduce((total, order) => total + order.total, 0).toLocaleString()}` },
-    { label: "Low stock", value: products.filter((product) => product.stock <= 3).length.toLocaleString() },
   ];
   const fieldClass = "mt-1 w-full border bg-background rounded-sm px-3 py-2 font-body text-sm";
 
@@ -141,7 +156,7 @@ const AdminPage = () => {
         ))}
       </section>
       <nav className="container flex gap-2 py-6">
-        {(["catalog", "orders"] as const).map((item) => (
+        {(["catalog", "orders", "users"] as const).map((item) => (
           <button key={item} onClick={() => setSection(item)} className={`px-5 py-2 rounded-full font-body text-sm capitalize ${section === item ? "bg-primary text-primary-foreground" : "bg-secondary"}`}>
             {item}
           </button>
@@ -187,6 +202,49 @@ const AdminPage = () => {
                 Room
                 <select value={form.room} onChange={(event) => setForm({ ...form, room: event.target.value })} className={fieldClass}>{rooms.map((item) => <option key={item}>{item}</option>)}</select>
               </label>
+              <div className="border-t pt-3 space-y-3">
+                <div className="flex items-center justify-between gap-3">
+                  <p className="font-body text-sm font-medium">Variants</p>
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, variants: [...form.variants, { id: crypto.randomUUID(), name: "", priceAdjustment: 0, stock: 0 }] })}
+                    className="font-body text-sm text-primary underline"
+                  >
+                    Add option
+                  </button>
+                </div>
+                {form.variants.map((variant, index) => (
+                  <div key={variant.id} className="grid grid-cols-[1fr_80px_80px_auto] gap-2 items-end">
+                    <label className="font-body text-xs">
+                      Name
+                      <input value={variant.name} onChange={(event) => {
+                        const variants = [...form.variants];
+                        variants[index] = { ...variant, name: event.target.value };
+                        setForm({ ...form, variants });
+                      }} className={fieldClass} />
+                    </label>
+                    <label className="font-body text-xs">
+                      Add $
+                      <input type="number" value={variant.priceAdjustment} onChange={(event) => {
+                        const variants = [...form.variants];
+                        variants[index] = { ...variant, priceAdjustment: Number(event.target.value) };
+                        setForm({ ...form, variants });
+                      }} className={fieldClass} />
+                    </label>
+                    <label className="font-body text-xs">
+                      Stock
+                      <input type="number" min={0} value={variant.stock} onChange={(event) => {
+                        const variants = [...form.variants];
+                        variants[index] = { ...variant, stock: Number(event.target.value) };
+                        setForm({ ...form, variants });
+                      }} className={fieldClass} />
+                    </label>
+                    <button type="button" onClick={() => setForm({ ...form, variants: form.variants.filter((item) => item.id !== variant.id) })} className="pb-2 font-body text-xs text-destructive underline">
+                      Remove
+                    </button>
+                  </div>
+                ))}
+              </div>
               <button disabled={saveMutation.isPending || uploading} className="w-full py-3 bg-primary text-primary-foreground rounded-sm font-body">{editingId ? "Save changes" : "Create product"}</button>
               {editingId && <button type="button" onClick={resetForm} className="w-full font-body text-sm underline">Cancel editing</button>}
             </form>
@@ -213,7 +271,7 @@ const AdminPage = () => {
             </div>
           </section>
         </div>
-      ) : (
+      ) : section === "orders" ? (
         <section className="container pb-16">
           <h2 className="font-display text-3xl font-semibold">Customer orders</h2>
           {orders.isLoading && <p className="mt-4 font-body text-muted-foreground">Loading...</p>}
@@ -234,6 +292,45 @@ const AdminPage = () => {
                 </select>
               </article>
             ))}
+          </div>
+        </section>
+      ) : (
+        <section className="container pb-16">
+          <h2 className="font-display text-3xl font-semibold">Customers and admins</h2>
+          {users.isLoading && <p className="mt-4 font-body text-muted-foreground">Loading users...</p>}
+          {users.error && <p className="mt-4 text-destructive">{users.error.message}</p>}
+          <div className="mt-6 overflow-x-auto border rounded-sm bg-card">
+            <table className="w-full text-left font-body text-sm">
+              <thead className="border-b text-muted-foreground">
+                <tr>
+                  <th className="p-3">Name</th>
+                  <th className="p-3">Email</th>
+                  <th className="p-3">Role</th>
+                  <th className="p-3">Status</th>
+                  <th className="p-3">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(users.data ?? []).map((account) => (
+                  <tr key={account.id} className="border-b last:border-0">
+                    <td className="p-3">{account.name}</td>
+                    <td className="p-3">{account.email}</td>
+                    <td className="p-3">
+                      <select value={account.role} onChange={(event) => userMutation.mutate({ id: account.id, role: event.target.value as "customer" | "admin" })} className={fieldClass}>
+                        <option value="customer">customer</option>
+                        <option value="admin">admin</option>
+                      </select>
+                    </td>
+                    <td className="p-3">{account.active ? "Active" : "Disabled"}</td>
+                    <td className="p-3">
+                      <button onClick={() => userMutation.mutate({ id: account.id, active: !account.active })} className="text-primary underline">
+                        {account.active ? "Disable" : "Enable"}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </section>
       )}

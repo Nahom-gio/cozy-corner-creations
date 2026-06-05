@@ -21,28 +21,29 @@ const CartDrawer = () => {
           <>
             <div className="flex-1 overflow-y-auto mt-6 space-y-6 pr-1">
               {items.map((item) => (
-                <div key={item.id} className="flex gap-4">
+                <div key={item.cartKey} className="flex gap-4">
                   <img src={item.image} alt={item.name} className="w-20 h-20 object-cover rounded-sm bg-card" />
                   <div className="flex-1 min-w-0">
                     <h4 className="font-display text-sm font-medium text-foreground truncate">{item.name}</h4>
+                    {item.selectedVariant && <p className="font-body text-xs text-muted-foreground">{item.selectedVariant.name}</p>}
                     <p className="font-body text-sm text-muted-foreground">${item.price.toLocaleString()}</p>
                     <div className="flex items-center gap-2 mt-2">
                       <button
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        onClick={() => updateQuantity(item.cartKey, item.quantity - 1)}
                         className="w-7 h-7 rounded-full border flex items-center justify-center hover:bg-secondary transition-colors"
                       >
                         <Minus className="w-3 h-3" />
                       </button>
                       <span className="font-body text-sm w-6 text-center">{item.quantity}</span>
                       <button
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        onClick={() => updateQuantity(item.cartKey, item.quantity + 1)}
                         className="w-7 h-7 rounded-full border flex items-center justify-center hover:bg-secondary transition-colors"
                       >
                         <Plus className="w-3 h-3" />
                       </button>
                     </div>
                   </div>
-                  <button onClick={() => removeItem(item.id)} className="self-start p-1 hover:bg-secondary rounded transition-colors">
+                  <button onClick={() => removeItem(item.cartKey)} className="self-start p-1 hover:bg-secondary rounded transition-colors">
                     <X className="w-4 h-4 text-muted-foreground" />
                   </button>
                 </div>

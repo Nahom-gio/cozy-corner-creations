@@ -1,13 +1,13 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from "react";
-import type { Product } from "@/data/products";
+import type { Product, ProductVariant } from "@/data/products";
 
-export type CartItem = Product & { quantity: number };
+export type CartItem = Product & { quantity: number; cartKey: string; selectedVariant?: ProductVariant };
 
 type CartContextType = {
   items: CartItem[];
-  addItem: (product: Product, quantity?: number) => void;
-  removeItem: (id: string) => void;
-  updateQuantity: (id: string, qty: number) => void;
+  addItem: (product: Product, quantity?: number, variant?: ProductVariant) => void;
+  removeItem: (cartKey: string) => void;
+  updateQuantity: (cartKey: string, qty: number) => void;
   clearCart: () => void;
   totalItems: number;
   totalPrice: number;
@@ -41,26 +41,29 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
   }, [items]);
 
-  const addItem = useCallback((product: Product, quantity = 1) => {
+  const addItem = useCallback((product: Product, quantity = 1, variant?: ProductVariant) => {
     setItems((prev) => {
-      const existing = prev.find((i) => i.id === product.id);
+      const cartKey = `${product.id}::${variant?.id ?? ""}`;
+      const stock = variant?.stock ?? product.stock;
+      const price = product.price + (variant?.priceAdjustment ?? 0);
+      const existing = prev.find((i) => i.cartKey === cartKey);
       if (existing) {
-        return prev.map((i) => (i.id === product.id ? { ...i, quantity: Math.min(product.stock, i.quantity + quantity) } : i));
+        return prev.map((i) => (i.cartKey === cartKey ? { ...i, quantity: Math.min(stock, i.quantity + quantity), stock, price } : i));
       }
-      return [...prev, { ...product, quantity: Math.min(product.stock, quantity) }];
+      return [...prev, { ...product, cartKey, selectedVariant: variant, stock, price, quantity: Math.min(stock, quantity) }];
     });
     setIsOpen(true);
   }, []);
 
-  const removeItem = useCallback((id: string) => {
-    setItems((prev) => prev.filter((i) => i.id !== id));
+  const removeItem = useCallback((cartKey: string) => {
+    setItems((prev) => prev.filter((i) => i.cartKey !== cartKey));
   }, []);
 
-  const updateQuantity = useCallback((id: string, qty: number) => {
+  const updateQuantity = useCallback((cartKey: string, qty: number) => {
     if (qty <= 0) {
-      setItems((prev) => prev.filter((i) => i.id !== id));
+      setItems((prev) => prev.filter((i) => i.cartKey !== cartKey));
     } else {
-      setItems((prev) => prev.map((i) => (i.id === id ? { ...i, quantity: Math.min(i.stock, qty) } : i)));
+      setItems((prev) => prev.map((i) => (i.cartKey === cartKey ? { ...i, quantity: Math.min(i.stock, qty) } : i)));
     }
   }, []);
 

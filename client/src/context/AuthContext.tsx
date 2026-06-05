@@ -9,6 +9,8 @@ type AuthContextValue = {
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
   logout: () => void;
+  updateProfile: (profile: Pick<User, "name" | "phone" | "address" | "city" | "country">) => Promise<void>;
+  updatePassword: (currentPassword: string, nextPassword: string) => Promise<void>;
   toggleWishlist: (productId: string) => Promise<void>;
 };
 
@@ -53,6 +55,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       login: async (email, password) => saveSession(await api.login({ email, password })),
       register: async (name, email, password) => saveSession(await api.register({ name, email, password })),
       logout,
+      updateProfile: async (profile) => {
+        if (!token) throw new Error("Sign in to update your profile");
+        const nextUser = await api.updateProfile(profile, token);
+        setUser(nextUser);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ token, user: nextUser }));
+      },
+      updatePassword: async (currentPassword, nextPassword) => {
+        if (!token) throw new Error("Sign in to update your password");
+        await api.updatePassword({ currentPassword, nextPassword }, token);
+      },
       toggleWishlist: async (productId) => {
         if (!token) throw new Error("Sign in to save favorites");
         const nextUser = await api.toggleWishlist(productId, token);

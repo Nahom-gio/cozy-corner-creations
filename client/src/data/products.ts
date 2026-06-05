@@ -1,3 +1,19 @@
+export type ProductVariant = {
+  id: string;
+  name: string;
+  priceAdjustment: number;
+  stock: number;
+};
+
+export type ProductReview = {
+  id: string;
+  user: string;
+  name: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+};
+
 export type Product = {
   id: string;
   name: string;
@@ -12,6 +28,10 @@ export type Product = {
   origin: string;
   shipping: string;
   warranty: string;
+  variants: ProductVariant[];
+  reviews: ProductReview[];
+  ratingAverage: number;
+  reviewCount: number;
 };
 
 export const categories = ["All", "Seating", "Tables", "Storage", "Lighting"];

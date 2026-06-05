@@ -1,5 +1,25 @@
 import mongoose from "mongoose";
 
+const productVariantSchema = new mongoose.Schema(
+  {
+    id: { type: String, required: true, trim: true },
+    name: { type: String, required: true, trim: true },
+    priceAdjustment: { type: Number, required: true, default: 0 },
+    stock: { type: Number, required: true, min: 0, default: 0 },
+  },
+  { _id: false },
+);
+
+const productReviewSchema = new mongoose.Schema(
+  {
+    user: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
+    name: { type: String, required: true, trim: true },
+    rating: { type: Number, required: true, min: 1, max: 5 },
+    comment: { type: String, required: true, trim: true, maxlength: 600 },
+  },
+  { timestamps: true },
+);
+
 const productSchema = new mongoose.Schema(
   {
     id: {
@@ -68,6 +88,25 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: true,
       trim: true,
+    },
+    variants: {
+      type: [productVariantSchema],
+      default: [],
+    },
+    reviews: {
+      type: [productReviewSchema],
+      default: [],
+    },
+    ratingAverage: {
+      type: Number,
+      min: 0,
+      max: 5,
+      default: 0,
+    },
+    reviewCount: {
+      type: Number,
+      min: 0,
+      default: 0,
     },
   },
   { timestamps: true },

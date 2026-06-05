@@ -15,6 +15,10 @@ const product = {
   origin: "Crafted in Denmark",
   shipping: "2-3 weeks",
   warranty: "10 years",
+  variants: [],
+  reviews: [],
+  ratingAverage: 0,
+  reviewCount: 0,
 };
 
 const CartHarness = () => {

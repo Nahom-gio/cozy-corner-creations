@@ -10,6 +10,7 @@ export const authenticate = asyncHandler(async (req, res, next) => {
     const payload = verifyToken(token);
     const user = await User.findById(payload.sub);
     if (!user) return res.status(401).json({ message: "Account not found" });
+    if (!user.active) return res.status(403).json({ message: "Account is disabled" });
     req.user = user;
     next();
   } catch (error) {

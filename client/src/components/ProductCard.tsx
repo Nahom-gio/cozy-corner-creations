@@ -1,4 +1,4 @@
-import { Heart, Plus } from "lucide-react";
+import { Heart, Plus, Star } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import type { Product } from "@/data/products";
@@ -60,6 +60,10 @@ const ProductCard = ({ product }: { product: Product }) => {
           <p className="font-body text-xs tracking-wider uppercase text-muted-foreground">{product.category}</p>
           <h3 className="font-display text-lg font-medium text-foreground mt-0.5">{product.name}</h3>
           <p className="font-body text-sm text-foreground mt-1">${product.price.toLocaleString()}</p>
+          <p className="font-body text-xs text-muted-foreground mt-1 inline-flex items-center gap-1">
+            <Star className="w-3 h-3 fill-primary text-primary" />
+            {product.reviewCount ? `${product.ratingAverage.toFixed(1)} (${product.reviewCount})` : "No reviews"}
+          </p>
           <p className={`font-body text-xs mt-1 ${product.stock > 0 ? "text-accent" : "text-destructive"}`}>
             {product.stock > 0 ? `${product.stock} in stock` : "Out of stock"}
           </p>

@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Link, useParams, Navigate } from "react-router-dom";
-import { Minus, Plus, ShoppingBag, ChevronLeft } from "lucide-react";
+import { Minus, Plus, ShoppingBag, ChevronLeft, Star } from "lucide-react";
 import { motion } from "framer-motion";
 import StoreHeader from "@/components/StoreHeader";
 import StoreFooter from "@/components/StoreFooter";
@@ -8,13 +9,22 @@ import CartDrawer from "@/components/CartDrawer";
 import ProductCard from "@/components/ProductCard";
 import { useCart } from "@/context/CartContext";
 import { useProduct } from "@/hooks/useProducts";
+import { useAuth } from "@/context/AuthContext";
+import { api } from "@/lib/api";
 
 const ProductDetailPage = () => {
   const { id } = useParams();
   const { product, products, loading, error } = useProduct(id);
   const { addItem, setIsOpen } = useCart();
+  const { user, token } = useAuth();
+  const queryClient = useQueryClient();
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
+  const [selectedVariantId, setSelectedVariantId] = useState("");
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewComment, setReviewComment] = useState("");
+  const [reviewError, setReviewError] = useState("");
+  const [reviewSaving, setReviewSaving] = useState(false);
 
   if (loading) {
     return (
@@ -46,14 +56,37 @@ const ProductDetailPage = () => {
   if (!product) return <Navigate to="/404" replace />;
 
   const gallery = product.images;
+  const selectedVariant = product.variants.find((variant) => variant.id === selectedVariantId);
+  const availableStock = selectedVariant?.stock ?? product.stock;
+  const unitPrice = product.price + (selectedVariant?.priceAdjustment ?? 0);
 
   const related = products
     .filter((p) => p.id !== product.id && (p.room === product.room || p.category === product.category))
     .slice(0, 4);
 
   const handleAdd = () => {
-    addItem(product, quantity);
+    addItem(product, quantity, selectedVariant);
     setIsOpen(true);
+  };
+
+  const submitReview = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!token) {
+      setReviewError("Sign in to review this product");
+      return;
+    }
+    setReviewSaving(true);
+    setReviewError("");
+    try {
+      await api.createReview(product.id, { rating: reviewRating, comment: reviewComment }, token);
+      setReviewComment("");
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ queryKey: ["products", product.id] });
+    } catch (requestError) {
+      setReviewError(requestError instanceof Error ? requestError.message : "Could not save review");
+    } finally {
+      setReviewSaving(false);
+    }
   };
 
   return (
@@ -115,8 +148,12 @@ const ProductDetailPage = () => {
               {product.name}
             </h1>
             <p className="font-body text-2xl text-foreground mt-4">
-              ${product.price.toLocaleString()}
+              ${unitPrice.toLocaleString()}
             </p>
+            <div className="mt-3 flex items-center gap-2 font-body text-sm text-muted-foreground">
+              <Star className="w-4 h-4 fill-primary text-primary" />
+              <span>{product.reviewCount ? `${product.ratingAverage.toFixed(1)} from ${product.reviewCount} review${product.reviewCount === 1 ? "" : "s"}` : "No reviews yet"}</span>
+            </div>
 
             <div className="my-8 border-t" />
 
@@ -132,6 +169,33 @@ const ProductDetailPage = () => {
               <li className="text-muted-foreground">Warranty<span className="block text-foreground">{product.warranty}</span></li>
             </ul>
 
+            {product.variants.length > 0 && (
+              <div className="mt-8">
+                <h2 className="font-display text-lg font-medium text-foreground mb-3">Options</h2>
+                <div className="grid sm:grid-cols-2 gap-3">
+                  <button
+                    onClick={() => { setSelectedVariantId(""); setQuantity(1); }}
+                    className={`border rounded-sm p-3 text-left font-body text-sm ${selectedVariantId === "" ? "border-primary bg-secondary" : "bg-background"}`}
+                  >
+                    <span className="block font-medium">Original</span>
+                    <span className="text-muted-foreground">${product.price.toLocaleString()} - {product.stock} in stock</span>
+                  </button>
+                  {product.variants.map((variant) => (
+                    <button
+                      key={variant.id}
+                      onClick={() => { setSelectedVariantId(variant.id); setQuantity(1); }}
+                      className={`border rounded-sm p-3 text-left font-body text-sm ${selectedVariantId === variant.id ? "border-primary bg-secondary" : "bg-background"}`}
+                    >
+                      <span className="block font-medium">{variant.name}</span>
+                      <span className="text-muted-foreground">
+                        ${(product.price + variant.priceAdjustment).toLocaleString()} - {variant.stock} in stock
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="mt-auto pt-10 space-y-4">
               <div className="flex items-center gap-4">
                 <span className="font-body text-sm text-muted-foreground">Quantity</span>
@@ -145,9 +209,10 @@ const ProductDetailPage = () => {
                   </button>
                   <span className="font-body w-8 text-center">{quantity}</span>
                   <button
-                    onClick={() => setQuantity((q) => Math.min(product.stock, q + 1))}
+                    onClick={() => setQuantity((q) => Math.min(availableStock, q + 1))}
                     className="w-9 h-9 rounded-full border flex items-center justify-center hover:bg-secondary transition-colors"
                     aria-label="Increase quantity"
+                    disabled={availableStock === 0}
                   >
                     <Plus className="w-3.5 h-3.5" />
                   </button>
@@ -155,14 +220,49 @@ const ProductDetailPage = () => {
               </div>
               <button
                 onClick={handleAdd}
-                disabled={product.stock === 0}
+                disabled={availableStock === 0}
                 className="w-full py-4 bg-primary text-primary-foreground font-body text-sm font-medium tracking-wider uppercase rounded-sm hover:opacity-90 transition-opacity inline-flex items-center justify-center gap-2 disabled:bg-muted disabled:text-muted-foreground"
               >
                 <ShoppingBag className="w-4 h-4" />
-                {product.stock === 0 ? "Out of stock" : `Add to cart - $${(product.price * quantity).toLocaleString()}`}
+                {availableStock === 0 ? "Out of stock" : `Add to cart - $${(unitPrice * quantity).toLocaleString()}`}
               </button>
             </div>
           </motion.div>
+        </section>
+
+        <section className="container pb-16 grid lg:grid-cols-[360px_1fr] gap-10">
+          <form onSubmit={submitReview} className="border bg-card rounded-sm p-5 h-fit">
+            <h2 className="font-display text-2xl font-semibold">Review this product</h2>
+            <label className="block mt-4 font-body text-sm">
+              Rating
+              <select value={reviewRating} onChange={(event) => setReviewRating(Number(event.target.value))} className="mt-1 w-full border bg-background rounded-sm px-3 py-2">
+                {[5, 4, 3, 2, 1].map((rating) => <option key={rating} value={rating}>{rating} stars</option>)}
+              </select>
+            </label>
+            <label className="block mt-4 font-body text-sm">
+              Comment
+              <textarea required minLength={5} value={reviewComment} onChange={(event) => setReviewComment(event.target.value)} className="mt-1 w-full min-h-28 border bg-background rounded-sm px-3 py-2" />
+            </label>
+            {reviewError && <p className="mt-3 font-body text-sm text-destructive">{reviewError}</p>}
+            <button disabled={reviewSaving || !user} className="mt-4 w-full py-3 bg-primary text-primary-foreground rounded-sm font-body disabled:opacity-60">
+              {!user ? "Sign in to review" : reviewSaving ? "Saving..." : "Save review"}
+            </button>
+          </form>
+          <div>
+            <h2 className="font-display text-2xl font-semibold">Customer reviews</h2>
+            {product.reviews.length === 0 && <p className="mt-4 font-body text-muted-foreground">No reviews yet.</p>}
+            <div className="mt-5 space-y-4">
+              {product.reviews.map((review) => (
+                <article key={review.id || `${review.user}-${review.createdAt}`} className="border rounded-sm p-4 bg-card">
+                  <div className="flex items-center justify-between gap-4">
+                    <strong className="font-body">{review.name}</strong>
+                    <span className="font-body text-sm text-accent">{review.rating}/5 stars</span>
+                  </div>
+                  <p className="font-body text-sm text-muted-foreground mt-2">{review.comment}</p>
+                </article>
+              ))}
+            </div>
+          </div>
         </section>
 
         {related.length > 0 && (

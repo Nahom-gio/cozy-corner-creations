@@ -2,7 +2,7 @@ import type { Product } from "@/data/products";
 
 type ApiErrorPayload = { message?: string };
 
-export type ProductInput = Omit<Product, "id"> & { id?: string };
+export type ProductInput = Omit<Product, "id" | "reviews" | "ratingAverage" | "reviewCount"> & { id?: string };
 
 export type OrderInput = {
   customer: {
@@ -12,7 +12,7 @@ export type OrderInput = {
     city: string;
     country: string;
   };
-  items: Array<{ productId: string; quantity: number }>;
+  items: Array<{ productId: string; variantId?: string; quantity: number }>;
 };
 
 export type Order = {
@@ -21,10 +21,21 @@ export type Order = {
   status: string;
   createdAt: string;
   customer: OrderInput["customer"];
-  items: Array<{ productId: string; name: string; image: string; price: number; quantity: number; subtotal: number }>;
+  items: Array<{ productId: string; variantId?: string; variantName?: string; name: string; image: string; price: number; quantity: number; subtotal: number }>;
 };
 
-export type User = { id: string; name: string; email: string; role: "customer" | "admin"; wishlist: string[] };
+export type User = {
+  id: string;
+  name: string;
+  email: string;
+  role: "customer" | "admin";
+  active: boolean;
+  phone: string;
+  address: string;
+  city: string;
+  country: string;
+  wishlist: string[];
+};
 export type Session = { token: string; user: User };
 
 async function request<T>(path: string, options?: RequestInit, token?: string): Promise<T> {
@@ -55,8 +66,17 @@ export const api = {
   login: (input: { email: string; password: string }) =>
     request<Session>("/api/auth/login", { method: "POST", body: JSON.stringify(input) }),
   getMe: (token: string) => request<User>("/api/auth/me", undefined, token),
+  updateProfile: (profile: Pick<User, "name" | "phone" | "address" | "city" | "country">, token: string) =>
+    request<User>("/api/auth/me", { method: "PUT", body: JSON.stringify(profile) }, token),
+  updatePassword: (passwords: { currentPassword: string; nextPassword: string }, token: string) =>
+    request<void>("/api/auth/me/password", { method: "PUT", body: JSON.stringify(passwords) }, token),
+  getUsers: (token: string) => request<User[]>("/api/auth/users", undefined, token),
+  updateUser: (id: string, updates: { role?: User["role"]; active?: boolean }, token: string) =>
+    request<User>(`/api/auth/users/${id}`, { method: "PUT", body: JSON.stringify(updates) }, token),
   toggleWishlist: (productId: string, token: string) =>
     request<User>(`/api/auth/wishlist/${productId}`, { method: "PUT" }, token),
+  createReview: (productId: string, review: { rating: number; comment: string }, token: string) =>
+    request<Product>(`/api/products/${productId}/reviews`, { method: "POST", body: JSON.stringify(review) }, token),
   createOrder: (order: OrderInput, token: string) =>
     request<Order>("/api/orders", { method: "POST", body: JSON.stringify(order) }, token),
   getOrders: (token: string) => request<Order[]>("/api/orders", undefined, token),

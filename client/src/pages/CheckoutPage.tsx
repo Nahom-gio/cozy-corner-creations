@@ -31,7 +31,7 @@ const CheckoutPage = () => {
     try {
       const createdOrder = await api.createOrder({
         customer,
-        items: items.map((item) => ({ productId: item.id, quantity: item.quantity })),
+        items: items.map((item) => ({ productId: item.id, variantId: item.selectedVariant?.id, quantity: item.quantity })),
       }, token);
       setOrder(createdOrder);
       clearCart();
@@ -106,6 +106,7 @@ const CheckoutPage = () => {
                     <img src={item.image} alt="" className="w-14 h-14 object-cover rounded-sm" />
                     <div className="flex-1">
                       <p>{item.name}</p>
+                      {item.selectedVariant && <p className="text-muted-foreground">{item.selectedVariant.name}</p>}
                       <p className="text-muted-foreground">Qty {item.quantity}</p>
                     </div>
                     <span>${(item.price * item.quantity).toLocaleString()}</span>

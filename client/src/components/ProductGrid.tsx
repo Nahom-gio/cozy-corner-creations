@@ -1,17 +1,22 @@
 import { useState } from "react";
-import { categories } from "@/data/products";
+import { categories, rooms } from "@/data/products";
 import { useProducts } from "@/hooks/useProducts";
 import ProductCard from "./ProductCard";
 
 const ProductGrid = () => {
   const [active, setActive] = useState("All");
+  const [room, setRoom] = useState("All");
+  const [stock, setStock] = useState("all");
   const [sort, setSort] = useState("featured");
   const [page, setPage] = useState(1);
   const { products, loading, error } = useProducts();
 
   const pageSize = 8;
-  const filtered = [...(active === "All" ? products : products.filter((p) => p.category === active))]
-    .sort((a, b) => sort === "price-low" ? a.price - b.price : sort === "price-high" ? b.price - a.price : a.name.localeCompare(b.name));
+  const filtered = products
+    .filter((p) => active === "All" || p.category === active)
+    .filter((p) => room === "All" || p.room === room)
+    .filter((p) => stock === "all" || (stock === "in-stock" ? p.stock > 0 : p.stock === 0))
+    .sort((a, b) => sort === "price-low" ? a.price - b.price : sort === "price-high" ? b.price - a.price : sort === "rating" ? b.ratingAverage - a.ratingAverage : a.name.localeCompare(b.name));
   const pages = Math.max(1, Math.ceil(filtered.length / pageSize));
   const visible = filtered.slice((page - 1) * pageSize, page * pageSize);
 
@@ -38,8 +43,18 @@ const ProductGrid = () => {
           ))}
           <select value={sort} onChange={(e) => { setSort(e.target.value); setPage(1); }} className="px-3 py-1.5 text-sm font-body rounded-full border bg-background">
             <option value="featured">Name A-Z</option>
+            <option value="rating">Top rated</option>
             <option value="price-low">Price low-high</option>
             <option value="price-high">Price high-low</option>
+          </select>
+          <select value={room} onChange={(e) => { setRoom(e.target.value); setPage(1); }} className="px-3 py-1.5 text-sm font-body rounded-full border bg-background">
+            <option>All</option>
+            {rooms.map((item) => <option key={item}>{item}</option>)}
+          </select>
+          <select value={stock} onChange={(e) => { setStock(e.target.value); setPage(1); }} className="px-3 py-1.5 text-sm font-body rounded-full border bg-background">
+            <option value="all">All stock</option>
+            <option value="in-stock">In stock</option>
+            <option value="out">Out of stock</option>
           </select>
         </div>
       </div>

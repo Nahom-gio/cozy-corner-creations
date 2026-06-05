@@ -149,5 +149,13 @@ export const sampleProducts = products.map((product) => ({
   ...product,
   stock: 12,
   images: [product.image],
+  variants: [
+    { id: "standard", name: "Standard finish", priceAdjustment: 0, stock: 6 },
+    { id: "premium", name: "Premium fabric", priceAdjustment: 180, stock: 4 },
+    { id: "dark-wood", name: "Dark wood finish", priceAdjustment: 120, stock: 2 },
+  ],
+  reviews: [],
+  ratingAverage: 0,
+  reviewCount: 0,
   ...detailsByCategory[product.category],
 }));

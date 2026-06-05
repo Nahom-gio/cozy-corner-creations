@@ -3,6 +3,8 @@ import mongoose from "mongoose";
 const orderItemSchema = new mongoose.Schema(
   {
     productId: { type: String, required: true },
+    variantId: { type: String, default: "" },
+    variantName: { type: String, default: "" },
     name: { type: String, required: true },
     image: { type: String, required: true },
     price: { type: Number, required: true, min: 0 },
