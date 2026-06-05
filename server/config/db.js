@@ -4,16 +4,11 @@ export async function connectDB() {
   const mongoUri = process.env.MONGODB_URI;
 
   if (!mongoUri) {
-    console.warn("MONGODB_URI is not set. Server is running without a database connection.");
-    return null;
+    throw new Error("MONGODB_URI is not set. Create server/.env before starting the API.");
   }
 
-  try {
-    const connection = await mongoose.connect(mongoUri);
-    console.log(`MongoDB connected: ${connection.connection.host}`);
-    return connection;
-  } catch (error) {
-    console.error("MongoDB connection failed:", error.message);
-    process.exit(1);
-  }
+  const connection = await mongoose.connect(mongoUri, { serverSelectionTimeoutMS: 5000 });
+  await connection.connection.db.collection("products").findOne({});
+  console.log(`MongoDB connected: ${connection.connection.host}`);
+  return connection;
 }

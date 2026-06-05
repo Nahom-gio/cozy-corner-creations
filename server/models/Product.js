@@ -33,7 +33,38 @@ const productSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    stock: {
+      type: Number,
+      required: true,
+      min: 0,
+      default: 0,
+    },
+    images: {
+      type: [String],
+      required: true,
+      validate: [(images) => images.length > 0, "Product must contain at least one image"],
+    },
     description: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    material: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    origin: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    shipping: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    warranty: {
       type: String,
       required: true,
       trim: true,

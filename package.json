@@ -1,5 +1,5 @@
 {
-  "name": "maison-mern",
+  "name": "ethio-mern",
   "private": true,
   "version": "0.0.0",
   "scripts": {
@@ -8,7 +8,8 @@
     "server:dev": "npm --prefix server run dev",
     "build": "npm --prefix client run build",
     "lint": "npm --prefix client run lint",
-    "test": "npm --prefix client run test",
+    "test": "npm --prefix client run test && npm --prefix server run test",
+    "test:e2e": "npm --prefix client run test:e2e",
     "install:all": "npm install --prefix client && npm install --prefix server"
   }
 }

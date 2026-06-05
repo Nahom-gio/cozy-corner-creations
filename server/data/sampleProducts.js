@@ -1,4 +1,4 @@
-export const sampleProducts = [
+const products = [
   {
     id: "1",
     name: "Vesper Armchair",
@@ -117,3 +117,37 @@ export const sampleProducts = [
     description: "Sage green ceramic table lamp with natural linen shade.",
   },
 ];
+
+const detailsByCategory = {
+  Seating: {
+    material: "Solid wood frame with premium upholstery",
+    origin: "Crafted in Europe",
+    shipping: "2-3 weeks",
+    warranty: "10 years",
+  },
+  Tables: {
+    material: "Responsibly sourced wood and natural stone",
+    origin: "Crafted in Denmark",
+    shipping: "3-4 weeks",
+    warranty: "10 years",
+  },
+  Storage: {
+    material: "Solid wood with hand-finished hardware",
+    origin: "Crafted in Portugal",
+    shipping: "2-4 weeks",
+    warranty: "10 years",
+  },
+  Lighting: {
+    material: "Brass and natural linen",
+    origin: "Crafted in Italy",
+    shipping: "1-2 weeks",
+    warranty: "5 years",
+  },
+};
+
+export const sampleProducts = products.map((product) => ({
+  ...product,
+  stock: 12,
+  images: [product.image],
+  ...detailsByCategory[product.category],
+}));

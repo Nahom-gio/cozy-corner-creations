@@ -1,0 +1,29 @@
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: ethio-mongodb
+    restart: unless-stopped
+    ports:
+      - "27018:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: secret
+    volumes:
+      - ethio-mongodb-data:/data/db
+
+  mongo-express:
+    image: mongo-express:latest
+    container_name: ethio-mongo-express-compose
+    restart: unless-stopped
+    depends_on:
+      - mongodb
+    ports:
+      - "8083:8081"
+    environment:
+      ME_CONFIG_MONGODB_URL: mongodb://admin:secret@mongodb:27017/?authSource=admin
+      ME_CONFIG_BASICAUTH_ENABLED: "true"
+      ME_CONFIG_BASICAUTH_USERNAME: ethio
+      ME_CONFIG_BASICAUTH_PASSWORD: ethio-admin
+
+volumes:
+  ethio-mongodb-data:

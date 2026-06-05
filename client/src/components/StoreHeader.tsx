@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { ShoppingBag, Menu, X, Search } from "lucide-react";
+import { ShoppingBag, Menu, X, Search, UserRound } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { Link, useNavigate } from "react-router-dom";
 import { useProducts } from "@/hooks/useProducts";
+import { useAuth } from "@/context/AuthContext";
 
 const navLinks = [
   { to: "/category/Living", label: "Living" },
@@ -18,6 +19,7 @@ const StoreHeader = () => {
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
   const { products } = useProducts();
+  const { user } = useAuth();
 
   const results = query.trim()
     ? products
@@ -33,6 +35,10 @@ const StoreHeader = () => {
     setSearchOpen(false);
     setQuery("");
   };
+  const openResults = () => {
+    navigate(`/search?q=${encodeURIComponent(query.trim())}`);
+    closeSearch();
+  };
 
   return (
     <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-md border-b">
@@ -46,7 +52,7 @@ const StoreHeader = () => {
             <Menu className="w-5 h-5 text-foreground" />
           </button>
           <Link to="/" className="font-display text-2xl md:text-3xl font-semibold tracking-tight text-foreground">
-            Maison
+            Ethio
           </Link>
         </div>
 
@@ -59,6 +65,9 @@ const StoreHeader = () => {
         </nav>
 
         <div className="flex items-center gap-1">
+          <Link to={user ? "/account" : "/auth"} className="p-2 hover:bg-secondary rounded-full transition-colors" aria-label={user ? "Your account" : "Sign in"}>
+            <UserRound className="w-5 h-5 text-foreground" />
+          </Link>
           <button
             onClick={() => setSearchOpen(true)}
             className="p-2 hover:bg-secondary rounded-full transition-colors"
@@ -90,7 +99,7 @@ const StoreHeader = () => {
           />
           <div className="absolute top-0 left-0 bottom-0 w-72 bg-background shadow-xl p-6 flex flex-col">
             <div className="flex items-center justify-between mb-8">
-              <span className="font-display text-2xl font-semibold">Maison</span>
+              <span className="font-display text-2xl font-semibold">Ethio</span>
               <button onClick={() => setMobileOpen(false)} className="p-2 hover:bg-secondary rounded-full" aria-label="Close menu">
                 <X className="w-5 h-5" />
               </button>
@@ -138,6 +147,7 @@ const StoreHeader = () => {
                 autoFocus
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && query.trim() && openResults()}
                 placeholder="Search furniture, lighting, rooms..."
                 className="flex-1 bg-transparent outline-none font-body text-lg placeholder:text-muted-foreground"
               />
@@ -171,6 +181,7 @@ const StoreHeader = () => {
                     ))}
                   </ul>
                 )}
+                <button onClick={openResults} className="mt-4 font-body text-sm text-primary underline">View all search results</button>
               </div>
             )}
           </div>

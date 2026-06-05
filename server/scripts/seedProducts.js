@@ -11,7 +11,7 @@ if (!process.env.MONGODB_URI) {
 }
 
 try {
-  await mongoose.connect(process.env.MONGODB_URI);
+  await mongoose.connect(process.env.MONGODB_URI, { serverSelectionTimeoutMS: 5000 });
   await Product.deleteMany({});
   await Product.insertMany(sampleProducts);
 

@@ -11,7 +11,7 @@ import { useProduct } from "@/hooks/useProducts";
 
 const ProductDetailPage = () => {
   const { id } = useParams();
-  const { product, products, loading } = useProduct(id);
+  const { product, products, loading, error } = useProduct(id);
   const { addItem, setIsOpen } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [activeImage, setActiveImage] = useState(0);
@@ -29,17 +29,30 @@ const ProductDetailPage = () => {
     );
   }
 
+  if (error) {
+    return (
+      <div className="min-h-screen flex flex-col">
+        <StoreHeader />
+        <main className="flex-1 container py-24">
+          <h1 className="font-display text-3xl font-semibold">Product unavailable</h1>
+          <p className="font-body text-destructive mt-3">{error.message}</p>
+        </main>
+        <CartDrawer />
+        <StoreFooter />
+      </div>
+    );
+  }
+
   if (!product) return <Navigate to="/404" replace />;
 
-  // Build a small gallery (same image repeated; ready for real multi-images later)
-  const gallery = [product.image, product.image, product.image];
+  const gallery = product.images;
 
   const related = products
     .filter((p) => p.id !== product.id && (p.room === product.room || p.category === product.category))
     .slice(0, 4);
 
   const handleAdd = () => {
-    for (let i = 0; i < quantity; i++) addItem(product);
+    addItem(product, quantity);
     setIsOpen(true);
   };
 
@@ -70,8 +83,9 @@ const ProductDetailPage = () => {
                 className="w-full h-full object-cover animate-fade-in"
               />
             </div>
-            <div className="grid grid-cols-3 gap-3">
-              {gallery.map((src, i) => (
+            {gallery.length > 1 && (
+              <div className="grid grid-cols-3 gap-3">
+                {gallery.map((src, i) => (
                 <button
                   key={i}
                   onClick={() => setActiveImage(i)}
@@ -82,8 +96,9 @@ const ProductDetailPage = () => {
                 >
                   <img src={src} alt="" className="w-full h-full object-cover" />
                 </button>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </motion.div>
 
           {/* Info */}
@@ -107,15 +122,14 @@ const ProductDetailPage = () => {
 
             <h2 className="font-display text-lg font-medium text-foreground mb-2">Description</h2>
             <p className="font-body text-muted-foreground leading-relaxed">
-              {product.description} Crafted with care to bring warmth and character to your space,
-              this piece blends timeless materials with a quiet, modern silhouette.
+              {product.description}
             </p>
 
             <ul className="mt-6 grid grid-cols-2 gap-y-2 gap-x-6 font-body text-sm">
-              <li className="text-muted-foreground">Material<span className="block text-foreground">Natural fibers & wood</span></li>
-              <li className="text-muted-foreground">Origin<span className="block text-foreground">Handcrafted in Europe</span></li>
-              <li className="text-muted-foreground">Ships in<span className="block text-foreground">2-3 weeks</span></li>
-              <li className="text-muted-foreground">Warranty<span className="block text-foreground">10 years</span></li>
+              <li className="text-muted-foreground">Material<span className="block text-foreground">{product.material}</span></li>
+              <li className="text-muted-foreground">Origin<span className="block text-foreground">{product.origin}</span></li>
+              <li className="text-muted-foreground">Ships in<span className="block text-foreground">{product.shipping}</span></li>
+              <li className="text-muted-foreground">Warranty<span className="block text-foreground">{product.warranty}</span></li>
             </ul>
 
             <div className="mt-auto pt-10 space-y-4">
@@ -131,7 +145,7 @@ const ProductDetailPage = () => {
                   </button>
                   <span className="font-body w-8 text-center">{quantity}</span>
                   <button
-                    onClick={() => setQuantity((q) => q + 1)}
+                    onClick={() => setQuantity((q) => Math.min(product.stock, q + 1))}
                     className="w-9 h-9 rounded-full border flex items-center justify-center hover:bg-secondary transition-colors"
                     aria-label="Increase quantity"
                   >
@@ -141,10 +155,11 @@ const ProductDetailPage = () => {
               </div>
               <button
                 onClick={handleAdd}
-                className="w-full py-4 bg-primary text-primary-foreground font-body text-sm font-medium tracking-wider uppercase rounded-sm hover:opacity-90 transition-opacity inline-flex items-center justify-center gap-2"
+                disabled={product.stock === 0}
+                className="w-full py-4 bg-primary text-primary-foreground font-body text-sm font-medium tracking-wider uppercase rounded-sm hover:opacity-90 transition-opacity inline-flex items-center justify-center gap-2 disabled:bg-muted disabled:text-muted-foreground"
               >
                 <ShoppingBag className="w-4 h-4" />
-                Add to cart - ${(product.price * quantity).toLocaleString()}
+                {product.stock === 0 ? "Out of stock" : `Add to cart - $${(product.price * quantity).toLocaleString()}`}
               </button>
             </div>
           </motion.div>

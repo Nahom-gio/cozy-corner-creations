@@ -10,9 +10,12 @@ lerna-debug.log*
 node_modules
 dist
 dist-ssr
+client/test-results/
 *.local
 .env
 server/.env
+server/uploads/*
+!server/uploads/.gitkeep
 
 # Editor directories and files
 .vscode/*

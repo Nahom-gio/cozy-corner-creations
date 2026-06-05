@@ -1,12 +1,14 @@
 {
-  "name": "maison-server",
+  "name": "ethio-server",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "seed:products": "node scripts/seedProducts.js"
+    "seed:products": "node scripts/seedProducts.js",
+    "seed:admin": "node scripts/seedAdmin.js",
+    "test": "node --test"
   },
   "dependencies": {
     "cors": "^2.8.6",

@@ -5,9 +5,9 @@ import { Link, useLocation } from "react-router-dom";
 
 const infoPages: Record<string, { title: string; content: string }> = {
   "/about": {
-    title: "About Maison",
+    title: "About Ethio",
     content:
-      "Maison was founded with a simple belief: your home should reflect who you are. We curate timeless, high-quality furniture from artisans and workshops around the world. Every piece is chosen for its craftsmanship, materiality, and enduring design. We believe in furniture that lasts - both in quality and style.",
+      "Ethio was founded with a simple belief: your home should reflect who you are. We curate timeless, high-quality furniture from artisans and workshops around the world. Every piece is chosen for its craftsmanship, materiality, and enduring design. We believe in furniture that lasts - both in quality and style.",
   },
   "/shipping": {
     title: "Shipping & Delivery",
@@ -22,7 +22,7 @@ const infoPages: Record<string, { title: string; content: string }> = {
   "/contact": {
     title: "Contact Us",
     content:
-      "Have a question or need styling advice? We'd love to hear from you.\n\nEmail: hello@maison.store\nPhone: +1 (555) 012-3456\nHours: Mon-Fri, 9am-6pm EST\n\nVisit our showroom at 142 Warren Street, New York, NY 10007.",
+      "Have a question or need styling advice? We'd love to hear from you.\n\nEmail: hello@ethio.store\nPhone: +1 (555) 012-3456\nHours: Mon-Fri, 9am-6pm EST\n\nVisit our showroom at 142 Warren Street, New York, NY 10007.",
   },
 };
 
