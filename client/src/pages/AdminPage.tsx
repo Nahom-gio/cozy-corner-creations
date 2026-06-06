@@ -9,15 +9,14 @@ import { api, type ProductInput } from "@/lib/api";
 
 const productCategories = categories.filter((category) => category !== "All");
 const statuses = ["placed", "processing", "shipped", "delivered"];
-const placeholderImage = "/products/armchair-olive.jpg";
 const emptyProduct: ProductInput = {
   name: "",
   price: 0,
   stock: 0,
   category: "Seating",
   room: "Living",
-  image: placeholderImage,
-  images: [placeholderImage],
+  image: "",
+  images: [],
   description: "",
   material: "",
   origin: "",
@@ -106,9 +105,8 @@ const AdminPage = () => {
       const uploads = await Promise.all(Array.from(files).map((file) => api.uploadImage(file, token)));
       const urls = uploads.map(({ url }) => url);
       setForm((current) => {
-        const isPlaceholder = current.image === placeholderImage && current.images.length === 1;
-        const images = Array.from(new Set([...(isPlaceholder ? [] : current.images), ...urls]));
-        return { ...current, image: isPlaceholder ? urls[0] : current.image, images };
+        const images = Array.from(new Set([...current.images, ...urls]));
+        return { ...current, image: current.image || urls[0], images };
       });
       toast.success(`${urls.length} image${urls.length === 1 ? "" : "s"} uploaded`);
     } catch (uploadError) {
@@ -120,8 +118,7 @@ const AdminPage = () => {
   const removeImage = (image: string) => {
     setForm((current) => {
       const images = current.images.filter((item) => item !== image);
-      const nextImages = images.length ? images : [placeholderImage];
-      return { ...current, image: current.image === image ? nextImages[0] : current.image, images: nextImages };
+      return { ...current, image: current.image === image ? (images[0] || "") : current.image, images };
     });
   };
   const orderList = orders.data ?? [];
@@ -172,7 +169,13 @@ const AdminPage = () => {
                 <input type="file" multiple accept="image/jpeg,image/png,image/webp,image/gif" onChange={(event) => uploadImages(event.target.files)} className={`${fieldClass} file:mr-3 file:border-0 file:bg-secondary file:px-2 file:py-1`} />
                 <span className="block mt-1 text-xs text-muted-foreground">{uploading ? "Uploading images..." : "Select one or more images. JPG, PNG, WEBP, or GIF, maximum 5 MB each."}</span>
               </label>
-              <img src={form.image} alt="Primary product preview" className="w-full aspect-[4/3] object-cover rounded-sm border bg-background" />
+              {form.image ? (
+                <img src={form.image} alt="Primary product preview" className="w-full aspect-[4/3] object-cover rounded-sm border bg-background" />
+              ) : (
+                <div className="w-full aspect-[4/3] rounded-sm border border-dashed bg-background flex items-center justify-center font-body text-sm text-muted-foreground">
+                  No image selected
+                </div>
+              )}
               <div className="grid grid-cols-3 gap-2">
                 {form.images.map((image) => (
                   <div key={image} className={`relative rounded-sm overflow-hidden border-2 ${image === form.image ? "border-primary" : "border-transparent"}`}>
@@ -245,7 +248,8 @@ const AdminPage = () => {
                   </div>
                 ))}
               </div>
-              <button disabled={saveMutation.isPending || uploading} className="w-full py-3 bg-primary text-primary-foreground rounded-sm font-body">{editingId ? "Save changes" : "Create product"}</button>
+              <button disabled={saveMutation.isPending || uploading || form.images.length === 0 || !form.image} className="w-full py-3 bg-primary text-primary-foreground rounded-sm font-body disabled:opacity-60">{editingId ? "Save changes" : "Create product"}</button>
+              {!form.image && <p className="font-body text-xs text-muted-foreground text-center">Upload at least one image before creating the product.</p>}
               {editingId && <button type="button" onClick={resetForm} className="w-full font-body text-sm underline">Cancel editing</button>}
             </form>
           </section>

@@ -6,6 +6,7 @@ import { useCart } from "@/context/CartContext";
 import { api } from "@/lib/api";
 import StoreHeader from "@/components/StoreHeader";
 import StoreFooter from "@/components/StoreFooter";
+import CartDrawer from "@/components/CartDrawer";
 import ProductCard from "@/components/ProductCard";
 import { useProducts } from "@/hooks/useProducts";
 
@@ -130,6 +131,7 @@ const AccountPage = () => {
           </div>
         </section>
       </main>
+      <CartDrawer />
       <StoreFooter />
     </div>
   );
